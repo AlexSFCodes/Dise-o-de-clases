@@ -1,350 +1,117 @@
 package club;
+
 import java.util.ArrayList;
 
-/**
- * Clase que modela un socio.
- */
-public class Socio
-{
-    // -----------------------------------------------------------------
-    // Enumeraciones
-    // -----------------------------------------------------------------
+public class Socio {
 
-    /**
-     * Enumeraciones para los tipos de suscripci�n.
-     */
-    public enum Tipo
-    {
-        /**
-         * Representa el socio VIP.
-         */
-        VIP,
-        /**
-         * Representa el socio regular.
-         */
-        REGULAR
-    }
-    // -----------------------------------------------------------------
-    // Constantes
-    // -----------------------------------------------------------------
+    public enum Tipo { VIP, REGULAR }
 
-    /**
-     * Dinero base con el que empiezan todos los socios regulares.
-     */
-    public final static double FONDOS_INICIALES_REGULARES = 50;
+    public static final double FONDOS_INICIALES_REGULARES = 50;
+    public static final double FONDOS_INICIALES_VIP = 100;
+    public static final double MONTO_MAXIMO_REGULARES = 1000;
+    public static final double MONTO_MAXIMO_VIP = 5000;
 
-    /**
-     * Dinero base con el que empiezan todos los socios VIP.
-     */
-    public final static double FONDOS_INICIALES_VIP = 100;
-
-    /**
-     * Dinero m�ximo que puede tener un socio regular en sus fondos.
-     */
-    public final static double MONTO_MAXIMO_REGULARES = 1000;
-
-    /**
-     * Dinero m�ximo que puede tener un socio VIP en sus fondos.
-     */
-    public final static double MONTO_MAXIMO_VIP = 5000;
-
-    // -----------------------------------------------------------------
-    // Atributos
-    // -----------------------------------------------------------------
-
-    /**
-     * C�dula del socio.
-     */
     private String cedula;
-
-    /**
-     * Nombre del socio.
-     */
     private String nombre;
-
-    /**
-     * Dinero que el socio tiene disponible.
-     */
     private double fondos;
-
-    /**
-     * Tipo de subscripci�n del socio.
-     */
     private Tipo tipoSubscripcion;
-
-    /**
-     * Facturas que tiene por pagar el socio.
-     */
     private ArrayList<Factura> facturas;
-
-    /**
-     * Nombres de las personas autorizadas para este socio.
-     */
     private ArrayList<String> autorizados;
 
-    // -----------------------------------------------------------------
-    // Constructor
-    // -----------------------------------------------------------------
-    /**
-     * Crea un socio del club. <br>
-     * <b>post: </b> Se cre� un objeto socio con los valores pasados por par�metro.<br>
-     * El vector de facturas y el vector de autorizados fueron inicializados. <br>
-     * Se inicializaron los fondos disponibles en FONDOS_INICIALES.
-     * @param pCedula Corresponde a la c�dula del socio nuevo. pCedula != null && pCedula != "".
-     * @param pNombre Corresponde al nombre del socio nuevo. pNombre != null && pNombre != "".
-     * @param pTipo Corresponde al tipo de subscripci�n del socio. pTipo pertenece {Tipo.VIP, Tipo.REGULAR}.
-     */
-    public Socio( String pCedula, String pNombre, Tipo pTipo )
-    {
-        cedula = pCedula;
-        nombre = pNombre;
-        tipoSubscripcion = pTipo;
-
-        switch( tipoSubscripcion )
-        {
-            case VIP:
-                fondos = FONDOS_INICIALES_VIP;
-                break;
-            default:
-                fondos = FONDOS_INICIALES_REGULARES;
-        }
-
-        facturas = new ArrayList<Factura>( );
-        autorizados = new ArrayList<String>( );
+    public Socio(String cedula, String nombre, Tipo tipo) {
+        this.cedula = cedula;
+        this.nombre = nombre;
+        this.tipoSubscripcion = tipo;
+        this.fondos = (tipo == Tipo.VIP) ? FONDOS_INICIALES_VIP : FONDOS_INICIALES_REGULARES;
+        this.facturas = new ArrayList<>();
+        this.autorizados = new ArrayList<>();
     }
 
-    // -----------------------------------------------------------------
-    // M�todos
-    // -----------------------------------------------------------------
+    public String darCedula() { return cedula; }
+    public String darNombre() { return nombre; }
+    public double darFondos() { return fondos; }
+    public Tipo darTipo() { return tipoSubscripcion; }
+    public ArrayList<Factura> darFacturas() { return facturas; }
+    public ArrayList<String> darAutorizados() { return autorizados; }
 
-    /**
-     * Retorna el nombre del socio. <br>
-     * @return El nombre del socio.
-     */
-    public String darNombre( )
-    {
-        return nombre;
+    private boolean existeAutorizado(String nombre) {
+        return autorizados.contains(nombre);
     }
 
-    /**
-     * Retorna la c�dula del socio. <br>
-     * @return La c�dula del socio.
-     */
-    public String darCedula( )
-    {
-        return cedula;
+    private boolean autorizadoTieneFactura(String nombre) {
+        return facturas.stream().anyMatch(f -> f.darNombre().equals(nombre));
     }
 
-    /**
-     * Retorna los fondos disponibles del socio. <br>
-     * @return Los fondos del socio.
-     */
-    public double darFondos( )
-    {
-        return fondos;
-    }
+    public void aumentarFondos(double valor) {
+        try {
+            if (tipoSubscripcion == Tipo.VIP && fondos + valor > MONTO_MAXIMO_VIP)
+                throw new Exception("Se excede el límite VIP");
+            if (tipoSubscripcion == Tipo.REGULAR && fondos + valor > MONTO_MAXIMO_REGULARES)
+                throw new Exception("Se excede el límite REGULAR");
 
-    /**
-     * Retorna el tipo de subscripci�n del socio. <br>
-     * @return El tipo de subscripci�n del socio.
-     */
-    public Tipo darTipo( )
-    {
-        return tipoSubscripcion;
-    }
+            fondos += valor;
 
-    /**
-     * Retorna la lista de facturas. <br>
-     * @return Retorna una lista con todas las facturas pendientes de pago del socio.
-     */
-    public ArrayList<Factura> darFacturas( )
-    {
-        return facturas;
-    }
-
-    /**
-     * Retorna la lista de autorizados por el socio. <br>
-     * @return La lista con los nombres de los autorizados por este socio.
-     */
-    public ArrayList<String> darAutorizados( )
-    {
-        return autorizados;
-    }
-
-    /**
-     * Indica si un autorizado pertenece o no a lista del socio. <br>
-     * <b>pre: </b> La lista de autorizados ha sido inicializada. <br>
-     * @param pNombreAutorizado Nombre del autorizado a buscar. pNombreAutorizado != null && pNombreAutorizado != "".
-     * @return True si en la lista existe un autorizado con el nombre dado, false de lo contrario.
-     */
-    private boolean existeAutorizado( String pNombreAutorizado )
-    {
-        boolean encontro = false;
-
-        for( int i = 0; i < autorizados.size( ) && !encontro; i++ )
-        {
-            String a = autorizados.get( i );
-            if( a.equals( pNombreAutorizado ) )
-            {
-                encontro = true;
-            }
-        }
-        return encontro;
-    }
-    
-    /**
-     * Indica si un autorizado tiene una factura asociada.<br>
-     * <b>pre: </b> La lista de facturas ha sido inicializada. <br>
-     * @param pNombreAutorizado Nombre del autorizado a verificar. pNombreAutorizado != null && pNombreAutorizado != "".
-     * @return True si el autorizado tiene factura asociada, false de lo contrario.
-     */
-    private boolean tieneFacturaAsociada( String pNombreAutorizado)
-    {
-        boolean tiene = false;
-        for( int i = 0; i < facturas.size( ) && !tiene; i++ )
-        {
-            Factura factura = facturas.get( i );
-            if( factura.darNombre( ).equals( pNombreAutorizado ) )
-            {
-                tiene = true;
-            }
-        }
-        
-        return tiene;
-    }
-
-    /**
-     * Aumenta los fondos disponibles del socio.
-     * @param pFondos Valor por adicionar a los fondos. pFondos > 0.
-     *
-     */
-    public void aumentarFondos( double pFondos )
-    {
-        if( tipoSubscripcion == Tipo.VIP && pFondos + fondos > MONTO_MAXIMO_VIP )
-        {
-            System.out.println("Con este monto se exceder�an los fondos m�ximos de un socio VIP, ingrese una cantidad menor" );
-
-
-        }
-        else if( tipoSubscripcion == Tipo.REGULAR && pFondos + fondos > MONTO_MAXIMO_REGULARES )
-        {
-            System.out.println( "Con este monto se exceder�an los fondos m�ximos de un socio regular, ingrese una cantidad menor" );
-        }
-        else
-        {
-            fondos = fondos + pFondos;
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
         }
     }
 
-    /**
-     * Registra un nuevo consumo para el socio, realizado por �l mismo o por una de sus personas autorizadas. <br>
-     * <b>pre: </b> La lista de facturas ha sido inicializada. <br>
-     * El nombre pertenece a la lista de autorizados.<br>
-     * <b>post: </b> Se agreg� una nueva factura .
-     * @param pNombre El nombre de la persona que realiz� el consumo. pNombre != null && pNombre != "".
-     * @param pConcepto Es la descripci�n del consumo. pConcepto != null && pConcepto != "".
-     * @param pValor Es el valor del consumo. pValor >= 0.
-     *
-     */
-    public void registrarConsumo( String pNombre, String pConcepto, double pValor )
-    {
+    public void registrarConsumo(String nombre, String concepto, double valor) {
+        try {
+            if (valor > fondos)
+                throw new Exception("Fondos insuficientes");
 
-        if( pValor > fondos )
-        {
-            System.out.println( "El socio no posee fondos suficientes para este consumo" );
-        }
-        else
-        {
-            Factura nuevaFactura = new Factura( pNombre, pConcepto, pValor );
-            facturas.add( nuevaFactura );
+            facturas.add(new Factura(nombre, concepto, valor));
+
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
         }
     }
 
-    /**
-     * Agrega una nueva persona autorizada al socio. <br>
-     * <b>pre: </b> La lista de autorizados ha sido inicializada. <br>
-     * <b>post: </b> Se agreg� un nuevo autorizado.
-     * @param pNombreAutorizado Es el nombre de la nueva persona autorizada para el socio. pNombreAutorizado != null.
-     *
-     */
-    public void agregarAutorizado( String pNombreAutorizado )
-    {
-        // Verificar que el nombre del socio no es el mismo del que se quiere autorizar
-        if( pNombreAutorizado.equals( darNombre( ) ) )
-        {
-            System.out.println( "No puede agregar el socio como autorizado." );
-        }
+    public void agregarAutorizado(String nombre) {
+        try {
+            if (existeAutorizado(nombre))
+                throw new Exception("El autorizado ya existe");
 
-        // Verificar que el socio posee fondos para financiar un nuevo autorizado
-        if( fondos == 0 )
-        {
-            System.out.println( "El socio no tiene fondos para financiar un nuevo autorizado." );
-        }
-        // Si el nombre no exist�a entonces lo agregamos
-        if( !existeAutorizado( pNombreAutorizado ) )
-        {
-            autorizados.add( pNombreAutorizado );
-        }
-        else
-        {
-            System.out.println("El autorizado ya existe." );
+            if (fondos <= 0)
+                throw new Exception("No hay fondos para agregar un autorizado");
+
+            autorizados.add(nombre);
+
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
         }
     }
 
-    /**
-     * Elimina el autorizado del socio con el nombre dado. <br>
-     * <b>pre: </b> La lista de autorizados ha sido inicializada. <br>
-     * <b>post: </b> Se elimin� un socio, con nombre igual a alguno de los vinculados.
-     * @param pNombreAutorizado Nombre del autorizado. pNombreAutorizado != null.
-     *
-     */
-    public void eliminarAutorizado( String pNombreAutorizado )
-    {
-        boolean encontro = false;
-        int numAutorizados = autorizados.size( );
-        if(tieneFacturaAsociada( pNombreAutorizado )){
-            System.out.println( pNombreAutorizado + " tiene una factura sin pagar.");
-        }
-        for( int i = 0; i < numAutorizados && !encontro; i++ )
-        {
-            String a = autorizados.get( i );
-            if( a.equals( pNombreAutorizado ) )
-            {
-                encontro = true;
-                autorizados.remove( i );
-            }
+    public void eliminarAutorizado(String nombre) {
+        try {
+            if (autorizadoTieneFactura(nombre))
+                throw new Exception("El autorizado tiene facturas pendientes");
+
+            autorizados.remove(nombre);
+
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
         }
     }
 
-    /**
-     * Paga la factura con el �ndice dado. <br>
-     * <b>pre: </b> La lista de facturas ha sido inicializada. <br>
-     * <b>post: </b> Se borr� la factura de la lista de facturas.
-     * @param pIndiceFactura Posici�n de la factura a eliminar. facturaIndice >= 0.
-     *
-     */
-    public void pagarFactura( int pIndiceFactura )
-    {
-        Factura factura = facturas.get( pIndiceFactura );
-        if( factura.darValor( ) > fondos )
-        {
-            System.out.println( "El socio no posee fondos suficientes para pagar esta factura" );
-        }
-        else
-        {
-            fondos = fondos - factura.darValor( );
-            facturas.remove( pIndiceFactura );
+    public void pagarFactura(int indice) {
+        try {
+            Factura f = facturas.get(indice);
+
+            if (f.darValor() > fondos)
+                throw new Exception("Fondos insuficientes para pagar");
+
+            fondos -= f.darValor();
+            facturas.remove(indice);
+
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
         }
     }
 
-    /**
-     * Retorna la cadena que representa al socio.
-     * @return Cadena de caracteres con la informaci�n del socio con el siguiente formato: <c�dula> - <nombre>.
-     */
-    public String toString( )
-    {
-        String socio = cedula + " - " + nombre;
-        return socio;
+    public String toString() {
+        return cedula + " - " + nombre;
     }
-
 }
+
