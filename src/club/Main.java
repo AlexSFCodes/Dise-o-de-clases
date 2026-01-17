@@ -17,7 +17,9 @@ public class Main {
             System.out.println("3. Registrar consumo");
             System.out.println("4. Pagar factura");
             System.out.println("5. Aumentar fondos");
-            System.out.println("6. Salir");
+            System.out.println("6. Total consumos por cédula");
+            System.out.println("7. Verificar si se puede eliminar socio");
+            System.out.println("8. Salir");
             System.out.print("Opción: ");
 
             try {
@@ -28,9 +30,7 @@ public class Main {
             }
 
             try {
-
                 switch (op) {
-
                     case 1:
                         System.out.print("Cédula: ");
                         String c1 = sc.nextLine();
@@ -40,7 +40,6 @@ public class Main {
                         String t = sc.nextLine();
                         club.afiliarSocio(c1, n1, Socio.Tipo.valueOf(t));
                         break;
-
                     case 2:
                         System.out.print("Cédula del socio: ");
                         String c2 = sc.nextLine();
@@ -78,17 +77,29 @@ public class Main {
                         break;
 
                     case 6:
+                        System.out.print("Cédula del socio: ");
+                        String c7 = sc.nextLine();
+                        double total = club.totalConsumosPorCedula(c7);
+                        System.out.println("Total consumos: $" + total);
+                        break;
+                    case 7:
+                        System.out.print("Cédula del socio: ");
+                        String c8 = sc.nextLine();
+                        boolean sePuede = club.sePuedeEliminarSocio(c8);
+                        System.out.println("¿Se puede eliminar? " + sePuede);
+                        break;
+                    case 8:
                         System.out.println("Saliendo...");
                         break;
-
                     default:
                         System.out.println("Opción inválida");
+                        break;
                 }
 
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
             }
 
-        } while (op != 6);
+        } while (op != 8);
     }
 }
